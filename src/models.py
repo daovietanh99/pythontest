@@ -11,15 +11,6 @@ class Question(models.Model):
     class Meta:
         db_table = "questions"
 
-class Answer(models.Model):
-    question = models.ForeignKey(to=Question, on_delete=models.CASCADE, related_field="question_answers")
-    user = models.ForeignKey(to=User, on_delete=models.CASCADE, related_field="user_answers")
-    code = models.CharField(max_length=5000, null=True, blank=True)
-    point = models.IntegerField(default=0)
-
-    class Meta:
-        db_table = "answers"
-        unique_together = ('question', 'user',)
         
 class User(models.Model):
     name = models.CharField(max_length=100)
@@ -29,3 +20,14 @@ class User(models.Model):
     
     class Meta:
         db_table = "users"
+
+
+class Answer(models.Model):
+    question = models.ForeignKey(to=Question, on_delete=models.CASCADE, related_name="question_answers")
+    user = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name="user_answers")
+    code = models.CharField(max_length=5000, null=True, blank=True)
+    point = models.IntegerField(default=0)
+
+    class Meta:
+        db_table = "answers"
+        unique_together = ('question', 'user',)

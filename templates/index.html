@@ -38,28 +38,29 @@
 </head>
 
 <body class="relative p-0 m-0 w-full">
-    <div class="w-full h-screen flex flex-col">
+    <div class="absolute bg-black/50 w-full h-full z-1000" style="display: none;" id="foreground"></div>
+    <div class="w-full h-screen flex flex-col z-1">
         <div class="w-full h-[50%] flex flex-row">
             <div class="w-[80%] bg-transparent border-black border-4 sketch h-full p-4">
-                <div class="w-full h-[20%] flex align-center justify-center font-cabin text-3xl" id="title">Problem 2/10</div>
+                <div class="w-full h-[20%] flex align-center justify-center font-cabin text-3xl" id="title">Problem 1/10</div>
                 <div class="w-full h-[80%]" id="question">
-                    <div class="w-full h-[20%]" id="content"></div>
+                    <div class="w-full h-[20%] font-cabin text-center text-2xl" id="content"></div>
                     <img class="w-full h-[80%]" id="image" src="">
                 </div>
             </div>
             <div class="w-[20%] bg-transparent border-black border-4 sketch p-4 flex flex-col">
                 <div class="w-full h-[20%] flex align-center justify-center font-cabin text-3xl">Leader Board</div>
-                <div class="w-full h-[80%] flex flex-col" id="leaderboard">
-                    <div class="w-full flex flex-row">
-                        <div class="w-[70%] p-4"></div>
-                        <div class="w-[30%] p-4"></div>
-                    </div>
+                <div class="w-full h-[80%] flex flex-col overflow-y-scroll" id="leaderboard">
                 </div>
             </div>
         </div>
         <div class="w-full h-[45%] flex flex-row">
             <div class="w-[50%] bg-transparent border-black border-4 sketch h-full p-4">
-                <button id="run-button" class="p-2 border-black border-2 sketch mb-2">Run Code</button>
+                <div class="flex flex-row">
+                    <button id="run-button" class="p-2 border-black border-2 sketch mb-2">Run Code</button>
+                    <button onclick="prevQuestion()" class="p-2 border-black border-2 sketch mb-2 ml-2">Prev</button>
+                    <button onclick="nextQuestion()" class="p-2 border-black border-2 sketch mb-2 ml-2">Next</button>
+                </div>
                 <div id="editor" class="w-full h-[80%]"></div>
             </div>
             <div class="w-[50%] bg-transparent border-black border-4 sketch p-4 overflow-x-scroll">
@@ -72,6 +73,24 @@
     <script src="/static/monaco/loader.min.js"></script>
 
     <script>
+        function locdau(obj) 
+        {
+            let str = obj.toLowerCase();
+            str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a");
+            str = str.replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, "e");
+            str = str.replace(/ì|í|ị|ỉ|ĩ/g, "i");
+            str = str.replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, "o");
+            str = str.replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, "u");
+            str = str.replace(/ỳ|ý|ỵ|ỷ|ỹ/g, "y");
+            str = str.replace(/đ/g, "d");
+            //str= str.replace(/!|@|%|\^|\*|\(|\)|\+|\=|\<|\>|\?|\/|,|\.|\:|\;|\'| |\"|\&|\#|\[|\]|~|$|_/g,"-");  
+            /* tìm và thay thế các kí tự đặc biệt trong chuỗi sang kí tự - */
+            //str= str.replace(/-+-/g,"-"); //thay thế 2- thành 1-  
+            str = str.replace(/^\-+|\-+$/g, "");
+            //cắt bỏ ký tự - ở đầu và cuối chuỗi 
+            return str
+        }
+
         function getLeaderBoard() {
             fetch('/api/user/?page_size=50', {
                 headers: {
@@ -88,8 +107,8 @@
                 for (let user of res["results"]) {
                     str += `
                     <div class="w-full flex flex-row mb-4">
-                        <div class="w-[70%] p-4 text-left">${user['name']}</div>
-                        <div class="w-[30%] p-4 text-right">${user['total_points']}</div>
+                        <div class="w-[70%] p-1 text-left font-cabin text-xl">${locdau(user['name'])}</div>
+                        <div class="w-[30%] p-1 text-right font-cabin text-xl">${user['total_points']}</div>
                     </div>`
                 }
                 document.getElementById("leaderboard").innerHTML = str
@@ -106,7 +125,7 @@
                 method: "GET",
             })
             .then(res => {
-                if (res.status != 200 || res.status != 201) {
+                if (res.status != 200 && res.status != 201) {
                     window.location = "/login"
                 }
                 return res.json()
@@ -152,7 +171,7 @@
 
         function nextQuestion() {
             let next = window.localStorage.getItem("next")
-            if (next) {
+            if (next !== "null") {
                 gotoQuestion(next)
             } else {
                 gotoQuestion("/api/question/?page_size=1")
@@ -161,7 +180,7 @@
 
         function prevQuestion() {
             let prev = window.localStorage.getItem("prev")
-            if (prev) {
+            if (prev !== "null") {
                 gotoQuestion(prev)
             } else {
                 gotoQuestion("/api/question/?page_size=1")
@@ -170,6 +189,7 @@
 
         function gotoQuestion(url) {
             // disable button next and previous
+            document.getElementById("foreground").style.display = "initial"
             fetch(url, {
                 headers: {
                     "Content-Type": "application/json",
@@ -181,6 +201,8 @@
                 return res.json()
             })
             .then(res => {
+                console.log(res)
+                document.getElementById("foreground").style.display = "none"
                 window.localStorage.setItem("question_id", res["results"][0][["id"]])
                 window.localStorage.setItem("answer", res["results"][0][["answer"]])
                 window.localStorage.setItem("content", res["results"][0][["content"]])
@@ -188,9 +210,15 @@
                 window.localStorage.setItem("next", res['next'])
                 window.localStorage.setItem("prev", res['previous'])
                 window.localStorage.setItem("count", res['count'])
-                document.getElementById("content").innerHTML = res["results"][0][["content"]]
+                document.getElementById("content").innerHTML = locdau(res["results"][0][["content"]])
                 document.getElementById("image").src = res["results"][0][["image"]]
                 document.term.write('\x1b[H\x1b[2J')
+                document.term.write(
+` __     ___  _____ ____ _____ 
+ \\ \\   / / |/ /_ _/ ___|_   _|
+  \\ \\ / /| ' / | |\\___ \\ | |  
+   \\ V / | . \\ | | ___) || |  
+    \\_/  |_|\\_\\___|____/ |_|`)
                 let user = window.localStorage.getItem("user_name")
                 let point = window.localStorage.getItem("total_points")
                 document.getElementById("title").innerHTML = "Problem " + res["results"][0][["id"]] + "/" + res["count"] + " -- " + user + " " + point 
@@ -199,6 +227,7 @@
 
         document.point_engine = {
             addPoint: (string1, retry=3) => {
+                document.getElementById("foreground").style.display = "initial"
                 let code = document.editor.getValue()
                 let string2 = window.localStorage.getItem("answer")
                 let longestCommonSubstring = findLongestCommonSubstring(string1, string2);
@@ -225,7 +254,11 @@
                     return res.json()
                 })
                 .then(res => {
+                    document.getElementById("foreground").style.display = "none"
                     //show animation
+                })
+                .catch((e) => {
+                    document.getElementById("foreground").style.display = "none"
                 })
             }
         }

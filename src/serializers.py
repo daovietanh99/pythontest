@@ -34,7 +34,7 @@ class LoginSerializer(serializers.Serializer):
 class PointSerializer(serializers.ModelSerializer):
     class Meta:
         model = Answer
-        exclude = ["user"]
+        fields = "__all__"
 
 class AnswerSerializer(serializers.ModelSerializer):
     class Meta:

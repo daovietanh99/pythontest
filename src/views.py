@@ -1,6 +1,6 @@
 from rest_framework import viewsets
 from src.models import Question, User, Answer
-from src.serializers import QuestionSerializer, UserSerializer, LoginSerializer, FullUserSerializer, PointSerializer, AnswerSerializer
+from src.serializers import QuestionSerializer, UserSerializer, LoginSerializer, FullUserSerializer, PointSerializer, AnswerSerializer, ListUserSerializer
 from src.filters import QuestionFilter, UserFilter, AnswerFilter
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -33,7 +33,7 @@ class UserView(viewsets.ModelViewSet):
     queryset = User.objects.annotate(total_points=Sum('user_answers__point')).all()
     filterset_class = UserFilter
     serializer_class = ListUserSerializer
-    ordering = "total_points"
+    ordering = "-total_points"
     
     def create(self, request, *args, **kwargs):
         serializer = UserSerializer(data=request.data)
@@ -81,4 +81,4 @@ class AnswerView(viewsets.ModelViewSet):
         if not instance:
             raise PermissionDenied
         point_serializer.save()
-        return Response(data=user_serializer.validated_data)
+        return Response(data={"result": "success"})

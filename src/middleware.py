@@ -13,14 +13,13 @@ def auth_middleware(get_response):
         relative_url = request.path
         
         print(relative_url)
+
         
-        if relative_url not in settings.IGNORE_URLS:
+        if '/media/image/' not in relative_url and relative_url not in settings.IGNORE_URLS:
         
             auth_header = request.headers.get('Authorization')
             
-            print("session", auth_header)
-            
-            user = User.objects.filter(session=auth_header)
+            user = User.objects.filter(session=auth_header).first()
         
             if not user:
                 raise PermissionDenied
