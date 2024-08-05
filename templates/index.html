@@ -64,7 +64,10 @@
                 <div id="editor" class="w-full h-[80%]"></div>
             </div>
             <div class="w-[50%] bg-transparent border-black border-4 sketch p-4 overflow-x-scroll">
-                <button id="submit-button" class="p-2 border-black border-2 sketch mb-2">Submit Code</button>
+                <div class="flex flex-row justify-between">
+                    <button id="submit-button" class="p-2 border-black border-2 sketch mb-2">Submit Code</button>
+                    <button onclick="logout()" class="p-2 border-black border-2 sketch mb-2 ml-2">Logout</button>
+                </div>
                 <div id="output" class="w-full h-[80%] p-4 bg-black"></div>
             </div>
         </div>
@@ -113,6 +116,10 @@
                 }
                 document.getElementById("leaderboard").innerHTML = str
             })
+        }
+
+        function logout() {
+            window.localStorage.setItem("session", "")
         }
 
         let session = window.localStorage.getItem("session")
