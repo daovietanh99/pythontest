@@ -70,7 +70,7 @@
 
     <script>
         function getLeaderBoard() {
-            fetch('/api/answer/leaderboard/?page_size=50', {
+            fetch('/api/user/?page_size=50', {
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization": session
@@ -84,9 +84,9 @@
                 let str = ""
                 for (let user of res["results"]) {
                     str += `
-                    <div class="w-full flex flex-row">
-                        <div class="w-[70%] p-4"></div>
-                        <div class="w-[30%] p-4"></div>
+                    <div class="w-full flex flex-row mb-4">
+                        <div class="w-[70%] p-4 text-left">${user['name']}</div>
+                        <div class="w-[30%] p-4 text-right">${user['total_points']}</div>
                     </div>`
                 }
                 document.getElementById("leaderboard").innerHTML = str
