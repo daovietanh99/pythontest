@@ -46,7 +46,12 @@
             </div>
             <div class="w-[20%] bg-transparent border-black border-4 sketch p-4 flex flex-col">
                 <div class="w-full h-[20%] flex align-center justify-center font-cabin text-3xl">Leader Board</div>
-                <div class="w-full h-[80%]"></div>
+                <div class="w-full h-[80%] flex flex-col">
+                    <div class="w-full flex flex-row">
+                        <div class="w-[70%] p-4"></div>
+                        <div class="w-[30%] p-4"></div>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="w-full h-[45%] flex flex-row">
@@ -115,27 +120,59 @@
             return longestSubstring;
         }
 
-        function addPoint(string1, string2, retry=3) {
-            let longestCommonSubstring = findLongestCommonSubstring(string1, string2);
-            fetch("/api/user/add-point", {
+        function gotoQuestion(url) {
+            // disable button next and previous
+            fetch(url, {
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization": session
                 },
-                method: "POST",
-                body: JSON.stringify({"point": 10, "number": 2})
+                method: "GET"
             })
             .then(res => {
-                if (res.status != 200 || res.status != 201) {
-                    if (retry > 0) {
-                        addPoint(string1, string2, retry -1)
-                    }
-                }
                 return res.json()
             })
             .then(res => {
-                
+                window.localStorage.setItem("question_id", res["results"][0][["id"]])
+                window.localStorage.setItem("answer", res["results"][0][["answer"]])
+                window.localStorage.setItem("content", res["results"][0][["content"]])
+                window.localStorage.setItem("image", res["results"][0][["image"]])
+                window.localStorage.setItem("is_answer", res["results"][0][["is_answer"]])
+                //show animation
             })
+        }
+
+        document.point_engine = {
+            addPoint: (string1, retry=3) => {
+                let code = document.editor.getValue()
+                let string2 = window.localStorage.getItem("answer")
+                let longestCommonSubstring = findLongestCommonSubstring(string1, string2);
+                let length = longestCommonSubstring.length
+                let id = parseInt(window.localStorage.getItem("question_id"))
+                let point = Math.floor((20*length)/(string1.length + string2.length))
+                fetch("/api/user/add-point", {
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": session
+                    },
+                    method: "POST",
+                    body: JSON.stringify({"point": point, "question": id, "code": code})
+                })
+                .then(res => {
+                    if (res.status != 200 || res.status != 201) {
+                        if (retry > 0) {
+                            addPoint(string1, retry -1)
+                        } else {
+                            //show animation
+                            gotoQuestion(current_question_id)
+                        }
+                    }
+                    return res.json()
+                })
+                .then(res => {
+                    //show animation
+                })
+            }
         }
     </script>
 
@@ -214,7 +251,7 @@ def test(func):
 
 def check(func):
     result = str(func())
-
+    document.point_engine.addPoint(result, 3)
 
 def runPython(event):
     value = document.editor.getValue()
@@ -230,8 +267,7 @@ def submitPython(event):
     try:
         exec(value + "\n" + "check(main)")
     except:
-        document.term.write('\x1b[H\x1b[2J')
-        document.term.write(traceback.format_exc())
+        document.point_engine.addPoint("", 3)
 
 run_function_proxy = create_proxy(runPython)
 submit_function_proxy = create_proxy(submitPython)
