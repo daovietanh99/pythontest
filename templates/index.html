@@ -231,7 +231,7 @@
     \\_/  |_|\\_\\___|____/ |_|`)
                 let user = window.localStorage.getItem("user_name")
                 let point = window.localStorage.getItem("total_points")
-                document.getElementById("title").innerHTML = "Problem " + res["results"][0][["id"]] + "/" + res["count"] + " -- " + user + " " + point 
+                document.getElementById("title").innerHTML = "Problem " + res["results"][0][["id"]] + "/" + res["count"] + " -- " + locdau(user) + " " + point 
             })
         }
 
