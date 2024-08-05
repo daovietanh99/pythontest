@@ -58,6 +58,8 @@ class UserView(viewsets.ModelViewSet):
     @action(detail=False, url_path="info", methods=["get"])
     def get_info(self, request):
         user = request.session["user"]
+        user_full = self.queryset.filter(pk=user['id']).first()
+        user["total_points"] = user_full.total_points
         return Response(data=user)
 
 
