@@ -85,6 +85,57 @@
             .catch(e => {
                 window.location = "/login"
             })
+        } else {
+            window.location = "/login"
+        }
+
+        function findLongestCommonSubstring(str1, str2) {
+            let longestSubstring = "";
+
+            for (let i = 0; i < str1.length; i++) {
+                for (let j = 0; j < str2.length; j++) {
+                    let substring = "";
+                    let x = i;
+                    let y = j;
+
+                    while (x < str1.length && 
+                        y < str2.length && 
+                        str1[x] === str2[y]) {
+                        substring += str1[x];
+                        x++;
+                        y++;
+                    }
+
+                    if (substring.length > longestSubstring.length) {
+                        longestSubstring = substring;
+                    }
+                }
+            }
+
+            return longestSubstring;
+        }
+
+        function addPoint(string1, string2, retry=3) {
+            let longestCommonSubstring = findLongestCommonSubstring(string1, string2);
+            fetch("/api/user/add-point", {
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": session
+                },
+                method: "POST",
+                body: JSON.stringify({"point": 10, "number": 2})
+            })
+            .then(res => {
+                if (res.status != 200 || res.status != 201) {
+                    if (retry > 0) {
+                        addPoint(string1, string2, retry -1)
+                    }
+                }
+                return res.json()
+            })
+            .then(res => {
+                
+            })
         }
     </script>
 
@@ -161,6 +212,10 @@ def test(func):
     document.term.write('\x1b[H\x1b[2J')
     document.term.write(str(func()))
 
+def check(func):
+    result = str(func())
+
+
 def runPython(event):
     value = document.editor.getValue()
     break_str = document.breaker.getValue()
@@ -171,7 +226,12 @@ def runPython(event):
         document.term.write(traceback.format_exc())
 
 def submitPython(event):
-    return
+    value = document.editor.getValue()
+    try:
+        exec(value + "\n" + "check(main)")
+    except:
+        document.term.write('\x1b[H\x1b[2J')
+        document.term.write(traceback.format_exc())
 
 run_function_proxy = create_proxy(runPython)
 submit_function_proxy = create_proxy(submitPython)
