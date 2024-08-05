@@ -1,0 +1,6 @@
+Pillow
+django
+djangorestframework
+django-filter
+drf-spectacular
+drf-spectacular-sidecar

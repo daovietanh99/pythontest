@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python For Kids</title>
+    <script src="/static/pyodide/pyodide.min.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/pyodide/v0.20.0/full/pyodide.js"></script> -->
+    <link rel="stylesheet" href="https://pyscript.net/alpha/pyscript.css" />
+    <link rel="stylesheet" href="/static/xterm/xterm.css">
+    <script defer src="/static/pyscript/pyscript.js"></script>
+    <!-- <script defer src="https://pyscript.net/alpha/pyscript.js"></script> -->
+    <link rel="stylesheet" href="/static/constrained-editor-plugin/dist/constrainedEditorPlugin.css">
+    <style>
+        @font-face {
+            font-family: "Backstay";
+            src: url(/static/BackstayRegular.ttf) format("truetype");
+        }
+        @font-face {
+            font-family: "Cabinsketch";
+            src: url(/static/CabinSketch-Bold.ttf) format("truetype");
+        }
+    </style>
+    <script src="/static/constrained-editor-plugin/dist/constrainedEditorPlugin.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/static/tailwind.config.js"></script>
+    <script src="/static/xterm/xterm.js"></script>
+    <script src="/static/xterm/xterm-addon-fit.min.js"></script>
+    <style>
+        .sketch {
+            border-top-left-radius: 255px 15px;
+            border-top-right-radius: 15px 225px;
+            border-bottom-right-radius: 225px 15px;
+            border-bottom-left-radius: 15px 255px;
+        }
+    </style>
+</head>
+
+<body class="relative p-0 m-0 w-full">
+    <div class="w-full h-screen flex flex-col">
+        <div class="w-full h-[50%] flex flex-row">
+            <div class="w-[80%] bg-transparent border-black border-4 sketch h-full p-4">
+                <div class="w-full h-[20%] flex align-center justify-center font-cabin text-3xl">Problem 2/10</div>
+                <div class="w-full h-[80%]"></div>
+            </div>
+            <div class="w-[20%] bg-transparent border-black border-4 sketch p-4 flex flex-col">
+                <div class="w-full h-[20%] flex align-center justify-center font-cabin text-3xl">Leader Board</div>
+                <div class="w-full h-[80%]"></div>
+            </div>
+        </div>
+        <div class="w-full h-[45%] flex flex-row">
+            <div class="w-[50%] bg-transparent border-black border-4 sketch h-full p-4">
+                <button id="run-button" class="p-2 border-black border-2 sketch mb-2">Run Code</button>
+                <div id="editor" class="w-full h-[80%]"></div>
+            </div>
+            <div class="w-[50%] bg-transparent border-black border-4 sketch p-4 overflow-x-scroll">
+                <button id="submit-button" class="p-2 border-black border-2 sketch mb-2">Submit Code</button>
+                <div id="output" class="w-full h-[80%] p-4 bg-black"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/monaco/loader.min.js"></script>
+
+    <script>
+        document.term = new Terminal({
+            cursorBlink: true,
+            convertEol: true
+        });
+        const fitAddon = new FitAddon.FitAddon();
+        document.term.loadAddon(fitAddon);
+        document.term.open(document.getElementById('output'));
+        fitAddon.fit()
+        document.term.write(
+` __     ___  _____ ____ _____ 
+ \\ \\   / / |/ /_ _/ ___|_   _|
+  \\ \\ / /| ' / | |\\___ \\ | |  
+   \\ V / | . \\ | | ___) || |  
+    \\_/  |_|\\_\\___|____/ |_|`)
+    </script>
+
+    <script>
+        // Proxy Monaco Editor workers using a data URL (adapted from: https://github.com/microsoft/monaco-editor/blob/main/docs/integrate-amd-cross.md)
+        require.config({ paths: { "vs": "/static/monaco/min/vs/" } });
+
+        window.MonacoEnvironment = {
+            getWorkerUrl: function (workerId, label) {
+                return `data:text/javascript;charset=utf-8,${encodeURIComponent(`
+                    self.MonacoEnvironment = { baseUrl: "https://daovietanh99.github.io/PythonCompetition/js/monaco/min/" };
+                    importScripts("https://daovietanh99.github.io/PythonCompetition/js/monaco/worker.min.js");`
+                )}`;
+            }
+        };
+
+        require(['vs/editor/editor.main'], function () {
+            const container = document.getElementById('editor')
+            const editorInstance = monaco.editor.create(container, {
+                value: [
+                    'def main():',
+                    '  #add your code here',
+                ].join('\n'),
+                language: 'python'
+            });
+            const model = editorInstance.getModel();
+            document.editor = editorInstance
+            document.breaker = {
+                getValue: () => `<br/>`
+            }
+
+            const editorElement = document.getElementById("editor");
+            window.addEventListener("resize", () => editorInstance.layout({
+                width: editorElement.offsetWidth,
+                height: editorElement.offsetHeight
+            }));
+
+            // - Configuration for the Constrained Editor : Starts Here
+            const constrainedInstance = constrainedEditor(monaco);
+            constrainedInstance.initializeIn(editorInstance);
+            constrainedInstance.addRestrictionsTo(model, [{
+                range: [2, 3, 2, 22], // Range of Function definition
+                allowMultiline: true,
+                label: 'funcDefinition'
+            }]);
+            // - Configuration for the Constrained Editor : Ends Here
+        });
+    </script>
+
+    <py-script>
+from js import console
+from pyodide import create_proxy
+import traceback
+
+def test(func):
+    break_str = document.breaker.getValue()
+    document.term.write('\x1b[H\x1b[2J')
+    document.term.write(str(func()))
+
+def runPython(event):
+    value = document.editor.getValue()
+    break_str = document.breaker.getValue()
+    try:
+        exec(value + "\n" + "test(main)")
+    except:
+        document.term.write('\x1b[H\x1b[2J')
+        document.term.write(traceback.format_exc())
+
+def submitPython(event):
+    return
+
+run_function_proxy = create_proxy(runPython)
+submit_function_proxy = create_proxy(submitPython)
+
+document.getElementById("run-button").addEventListener("click", run_function_proxy)
+document.getElementById("submit-button").addEventListener("click", submit_function_proxy)
+    </py-script>
+
+    <script type="py" terminal>print("hello world")</script>
+
+</body>
+
+</html>

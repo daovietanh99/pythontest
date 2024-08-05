@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        @font-face {
+            font-family: "Backstay";
+            src: url(BackstayRegular.ttf) format("truetype");
+        }
+        @font-face {
+            font-family: "Cabinsketch";
+            src: url(CabinSketch-Bold.ttf) format("truetype");
+        }
+    </style>
+     <style>
+        .sketch {
+            border-top-left-radius: 255px 15px;
+            border-top-right-radius: 15px 225px;
+            border-bottom-right-radius: 225px 15px;
+            border-bottom-left-radius: 15px 255px;
+        }
+    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="./js/tailwind.config.js"></script>
+    <title>Document</title>
+</head>
+<body class="w-full h-full flex justify-center align-center p-12">
+    <div class="border-black border-4 sketch flex w-[20%] h-[50%] p-8 flex-col">
+        <div class="w-full h-[20%] font-cabin text-center text-3xl pb-8">Signin</div>
+        <div class="w-full h-[80%] font-cabin">
+            <input class="border-black border-4 sketch flex font-cabin p-4" placeholder="Your full name" type="text" id="name">
+            <input class="border-black border-4 sketch flex font-cabin p-4 mt-8" placeholder="username" type="text" id="username">
+            <input class="border-black border-4 sketch flex font-cabin p-4 mt-8" placeholder="password", type="password" id="password">
+            <button class="border-black border-4 sketch flex font-cabin p-4 mt-8" onclick="signin()"> Submit </button>
+        </div>
+    </div>
+</body>
+<script>
+    function signin() {
+        fetch("/api/user/", {
+            headers: {
+                "Content-type": "application/json"
+            },
+            method: "POST",
+            body: JSON.stringify({
+                "name": document.getElementById("name").value,
+                "username": document.getElementById("username").value,
+                "password": document.getElementById("password").value,
+            })
+        }).then(res => res.json())
+        .then(res => {
+            window.location = "/login.html"
+        })
+        .catch(e => {
+            console.log("error")
+            // window.location.reload()
+        })
+    }
+</script>
+</html>
