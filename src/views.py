@@ -61,3 +61,8 @@ class UserView(viewsets.ModelViewSet):
         user_serializer.is_valid(raise_exception=True)
         user_serializer.save()
         return Response(data=user_serializer.validated_data)
+      
+    @action(detail=False, url_path="info", methods=["get"])
+    def get_info(self, request):
+        user = request.session["user"]
+        return Response(data=user)

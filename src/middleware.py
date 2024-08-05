@@ -1,5 +1,5 @@
 from src.models import User
-from src.serializers import UserSerializer
+from src.serializers import FullUserSerializer
 from django.core.exceptions import PermissionDenied
 from django.conf import settings
 
@@ -18,12 +18,14 @@ def auth_middleware(get_response):
         
             auth_header = request.headers.get('Authorization')
             
+            print("session", auth_header)
+            
             user = User.objects.filter(session=auth_header)
         
             if not user:
                 raise PermissionDenied
             
-            user_serializer = UserSerializer(user)
+            user_serializer = FullUserSerializer(user)
             
             request.session["user"] = user_serializer.data
 

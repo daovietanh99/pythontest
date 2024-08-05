@@ -64,6 +64,31 @@
     <script src="/static/monaco/loader.min.js"></script>
 
     <script>
+        let session = window.localStorage.getItem("session")
+        if (session) {
+            fetch("/api/user/info/", {
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": session
+                },
+                method: "GET",
+            })
+            .then(res => {
+                if (res.status != 200 || res.status != 201) {
+                    window.location = "/login"
+                }
+                return res.json()
+            })
+            .then(res => {
+                
+            })
+            .catch(e => {
+                window.location = "/login"
+            })
+        }
+    </script>
+
+    <script>
         document.term = new Terminal({
             cursorBlink: true,
             convertEol: true
