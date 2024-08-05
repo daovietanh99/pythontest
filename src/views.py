@@ -8,6 +8,7 @@ from django.core.exceptions import PermissionDenied
 import uuid
 from django.shortcuts import render
 from django.conf import settings
+from django.db.models import Sum
 
 
 def index(request):
@@ -29,13 +30,17 @@ class QuestionView(viewsets.ModelViewSet):
 
 
 class UserView(viewsets.ModelViewSet):
-    queryset = User.objects.all()
+    queryset = User.objects.annotate(total_points=Sum('user_answers__point')).all()
     filterset_class = UserFilter
-    serializer_class = UserSerializer
-    ordering = "id"
+    serializer_class = ListUserSerializer
+    ordering = "total_points"
     
     def create(self, request, *args, **kwargs):
-        return super().create(request, *args, **kwargs)
+        serializer = UserSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
     
     @action(detail=False, url_path="login", serializer_class=LoginSerializer, methods=["post"])
     def login(self, request):

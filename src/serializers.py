@@ -8,6 +8,10 @@ class QuestionSerializer(serializers.ModelSerializer):
         model = Question
         fields = "__all__"
 
+class ListUserSerializer(serializers.Serializer):
+    name = serializers.CharField()
+    total_points = serializers.IntegerField()
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
