@@ -41,8 +41,11 @@
     <div class="w-full h-screen flex flex-col">
         <div class="w-full h-[50%] flex flex-row">
             <div class="w-[80%] bg-transparent border-black border-4 sketch h-full p-4">
-                <div class="w-full h-[20%] flex align-center justify-center font-cabin text-3xl">Problem 2/10</div>
-                <div class="w-full h-[80%]"></div>
+                <div class="w-full h-[20%] flex align-center justify-center font-cabin text-3xl" id="title">Problem 2/10</div>
+                <div class="w-full h-[80%]" id="question">
+                    <div class="w-full h-[20%]" id="content"></div>
+                    <img class="w-full h-[80%]" id="image" src="">
+                </div>
             </div>
             <div class="w-[20%] bg-transparent border-black border-4 sketch p-4 flex flex-col">
                 <div class="w-full h-[20%] flex align-center justify-center font-cabin text-3xl">Leader Board</div>
@@ -110,6 +113,9 @@
                 return res.json()
             })
             .then(res => {
+                window.localStorage.setItem("user_name", res['name'])
+                window.localStorage.setItem("total_points", res['total_points'])
+
                 setInterval(getLeaderBoard, 5000)
             })
             .catch(e => {
@@ -162,6 +168,9 @@
                 window.localStorage.setItem("answer", res["results"][0][["answer"]])
                 window.localStorage.setItem("content", res["results"][0][["content"]])
                 window.localStorage.setItem("image", res["results"][0][["image"]])
+                document.getElementById("content").innerHTML = res["results"][0][["content"]]
+                document.getElementById("image").src = res["results"][0][["image"]]
+                document.term.write('\x1b[H\x1b[2J')
                 //show animation
             })
         }
