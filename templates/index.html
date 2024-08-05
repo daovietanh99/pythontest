@@ -120,6 +120,7 @@
 
         function logout() {
             window.localStorage.setItem("session", "")
+            window.location = "/login"
         }
 
         let session = window.localStorage.getItem("session")
