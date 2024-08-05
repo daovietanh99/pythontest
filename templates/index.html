@@ -172,7 +172,7 @@
         function nextQuestion() {
             let next = window.localStorage.getItem("next")
             if (next !== "null") {
-                gotoQuestion(next)
+                gotoQuestion(next.replace("http", "https"))
             } else {
                 gotoQuestion("/api/question/?page_size=1")
             }
@@ -181,7 +181,7 @@
         function prevQuestion() {
             let prev = window.localStorage.getItem("prev")
             if (prev !== "null") {
-                gotoQuestion(prev)
+                gotoQuestion(prev.replace("http", "https"))
             } else {
                 gotoQuestion("/api/question/?page_size=1")
             }
