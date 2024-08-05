@@ -67,7 +67,8 @@ class AnswerView(viewsets.ModelViewSet):
     def add_point(self, request):
         user = request.session["user"]
         request.data["user"] = user["id"]
-        point_serializer = PointSerializer(data=request.data)
+        instance = Answer.objects.filter(question=request.data["question"]).filter(user=request.data["user"]).first()
+        point_serializer = PointSerializer(instance, data=request.data, partial=True)
         point_serializer.is_valid(raise_exception=True)
         instance = User.objects.filter(pk=user["id"]).first()
         if not instance:

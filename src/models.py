@@ -19,6 +19,7 @@ class Answer(models.Model):
 
     class Meta:
         db_table = "answers"
+        unique_together = ('question', 'user',)
         
 class User(models.Model):
     name = models.CharField(max_length=100)

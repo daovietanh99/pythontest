@@ -50,11 +50,14 @@
                 "password": document.getElementById("password").value,
             })
         }).then(res => res.json())
-        .then(res => {
+        .then(async res => {
             if (res.status != 200 || res.status != 201) {
-                window.alert("something wrong");
+                res = await res.json()
+                window.alert(JSON.stringify(res));
+                return res
             } else {
-                window.location = "/login"
+                res = await res.json()
+                return res
             }
         })
         .catch(e => {
