@@ -56,6 +56,7 @@
                 window.alert(JSON.stringify(res));
                 return res
             } else {
+                window.location = "/login"
                 res = await res.json()
                 return res
             }
