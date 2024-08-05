@@ -93,7 +93,6 @@
                     </div>`
                 }
                 document.getElementById("leaderboard").innerHTML = str
-                //show animation
             })
         }
 
@@ -112,10 +111,10 @@
                 }
                 return res.json()
             })
-            .then(res => {
+            .then(async res => {
                 window.localStorage.setItem("user_name", res['name'])
                 window.localStorage.setItem("total_points", res['total_points'])
-
+                await gotoQuestion("/api/question/?page_size=1")
                 setInterval(getLeaderBoard, 5000)
             })
             .catch(e => {
@@ -151,6 +150,24 @@
             return longestSubstring;
         }
 
+        function nextQuestion() {
+            let next = window.localStorage.getItem("next")
+            if (next) {
+                gotoQuestion(next)
+            } else {
+                gotoQuestion("/api/question/?page_size=1")
+            }
+        }
+
+        function prevQuestion() {
+            let prev = window.localStorage.getItem("prev")
+            if (prev) {
+                gotoQuestion(prev)
+            } else {
+                gotoQuestion("/api/question/?page_size=1")
+            }
+        }
+
         function gotoQuestion(url) {
             // disable button next and previous
             fetch(url, {
@@ -168,10 +185,15 @@
                 window.localStorage.setItem("answer", res["results"][0][["answer"]])
                 window.localStorage.setItem("content", res["results"][0][["content"]])
                 window.localStorage.setItem("image", res["results"][0][["image"]])
+                window.localStorage.setItem("next", res['next'])
+                window.localStorage.setItem("prev", res['previous'])
+                window.localStorage.setItem("count", res['count'])
                 document.getElementById("content").innerHTML = res["results"][0][["content"]]
                 document.getElementById("image").src = res["results"][0][["image"]]
                 document.term.write('\x1b[H\x1b[2J')
-                //show animation
+                let user = window.localStorage.getItem("user_name")
+                let point = window.localStorage.getItem("total_points")
+                document.getElementById("title").innerHTML = "Problem " + res["results"][0][["id"]] + "/" + res["count"] + " -- " + user + " " + point 
             })
         }
 
