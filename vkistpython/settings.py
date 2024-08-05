@@ -27,7 +27,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
-IGNORE_URLS = ['/api/user/login/', '/api/user/', '/api/schema/swagger/', '/api/schema/', "/", "/login", "/signin", "/api/question/"]
+IGNORE_URLS = ['/api/user/login/', '/api/user/', '/api/schema/swagger/', '/api/schema/', "/", "/login", "/signin", "/api/question/", "/api/answer/"]
 
 # Application definition
 
