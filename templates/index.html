@@ -266,6 +266,11 @@
                 .then(res => {
                     document.getElementById("foreground").style.display = "none"
                     //show animation
+                    let user = window.localStorage.getItem("user_name")
+                    let point = window.localStorage.getItem("total_points")
+                    let count = window.localStorage.getItem("count")
+                    let id = window.localStorage.getItem("question_id")
+                    document.getElementById("title").innerHTML = "Problem " + id + "/" + count + " -- " + locdau(user) + " " + point 
                 })
                 .catch((e) => {
                     document.getElementById("foreground").style.display = "none"
