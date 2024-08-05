@@ -263,9 +263,26 @@
                     }
                     return res.json()
                 })
-                .then(res => {
+                .then(async res => {
                     document.getElementById("foreground").style.display = "none"
                     //show animation
+                    await fetch("/api/user/info/", {
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": session
+                        },
+                        method: "GET",
+                    })
+                    .then(res => {
+                        if (res.status != 200 && res.status != 201) {
+                            window.location = "/login"
+                        }
+                        return res.json()
+                    })
+                    .then(async res => {
+                        window.localStorage.setItem("user_name", res['name'])
+                        window.localStorage.setItem("total_points", res['total_points'])
+                    })
                     let user = window.localStorage.getItem("user_name")
                     let point = window.localStorage.getItem("total_points")
                     let count = window.localStorage.getItem("count")
