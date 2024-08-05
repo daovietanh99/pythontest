@@ -1,5 +1,5 @@
 import django_filters
-from src.models import Question, User
+from src.models import Question, User, Answer
 from typing import Any, Dict, Iterator, Optional
 from django.utils.translation import gettext_lazy as _
 from django.utils.encoding import force_str
@@ -79,4 +79,9 @@ class QuestionFilter(django_filters.FilterSet):
 class UserFilter(django_filters.FilterSet):
     class Meta:
         model = User
+        fields = '__all__'
+
+class AnswerFilter(django_filters.FilterSet):
+    class Meta:
+        model = Answer
         fields = '__all__'

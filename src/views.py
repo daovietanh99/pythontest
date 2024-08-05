@@ -1,7 +1,7 @@
 from rest_framework import viewsets
-from src.models import Question, User
-from src.serializers import QuestionSerializer, UserSerializer, LoginSerializer, FullUserSerializer, PointSerializer
-from src.filters import QuestionFilter, UserFilter
+from src.models import Question, User, Answer
+from src.serializers import QuestionSerializer, UserSerializer, LoginSerializer, FullUserSerializer, PointSerializer, AnswerSerializer
+from src.filters import QuestionFilter, UserFilter, AnswerFilter
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.core.exceptions import PermissionDenied
@@ -27,11 +27,12 @@ class QuestionView(viewsets.ModelViewSet):
     ordering = "id"
 
 
+
 class UserView(viewsets.ModelViewSet):
     queryset = User.objects.all()
     filterset_class = UserFilter
     serializer_class = UserSerializer
-    ordering = "-point"
+    ordering = "id"
     
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
@@ -48,21 +49,28 @@ class UserView(viewsets.ModelViewSet):
         user_serializer.is_valid(raise_exception=True)
         user_serializer.save()
         return Response(data={"session": session})
-    
-    @action(detail=False, url_path="add-point", serializer_class=PointSerializer, methods=["post"])
-    def add_point(self, request):
-        user = request.session["user"]
-        point_serializer = PointSerializer(data=request.data)
-        point_serializer.is_valid(raise_exception=True)
-        instance = User.objects.filter(pk=user["id"]).first()
-        if not instance:
-            raise PermissionDenied
-        user_serializer = FullUserSerializer(instance, data={"point": user['point'] + point_serializer.validated_data["point"]}, partial=True)
-        user_serializer.is_valid(raise_exception=True)
-        user_serializer.save()
-        return Response(data=user_serializer.validated_data)
       
     @action(detail=False, url_path="info", methods=["get"])
     def get_info(self, request):
         user = request.session["user"]
         return Response(data=user)
+
+
+
+class AnswerView(viewsets.ModelViewSet):
+    queryset = Answer.objects.all()
+    filterset_class = AnswerFilter
+    serializer_class = AnswerSerializer
+    ordering = "-point"
+
+    @action(detail=False, url_path="add-point", serializer_class=PointSerializer, methods=["post"])
+    def add_point(self, request):
+        user = request.session["user"]
+        request.data["user"] = user["id"]
+        point_serializer = PointSerializer(data=request.data)
+        point_serializer.is_valid(raise_exception=True)
+        instance = User.objects.filter(pk=user["id"]).first()
+        if not instance:
+            raise PermissionDenied
+        point_serializer.save()
+        return Response(data=user_serializer.validated_data)

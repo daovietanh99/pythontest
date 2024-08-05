@@ -51,11 +51,15 @@
             })
         }).then(res => res.json())
         .then(res => {
-            window.location = "/login"
+            if (res.status != 200 || res.status != 201) {
+                window.alert("something wrong");
+            } else {
+                window.location = "/login"
+            }
         })
         .catch(e => {
             console.log("error")
-            // window.location.reload()
+            window.alert("something wrong");
         })
     }
 </script>

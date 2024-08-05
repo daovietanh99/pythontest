@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from src.models import Question, User
+from src.models import Question, User, Answer
 
 class QuestionSerializer(serializers.ModelSerializer):
     image = serializers.FileField()
@@ -27,5 +27,12 @@ class LoginSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField()
     
-class PointSerializer(serializers.Serializer):
-    point = serializers.IntegerField(default = 0)
+class PointSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Answer
+        exclude = ["user"]
+
+class AnswerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Answer
+        fields = "__all__"

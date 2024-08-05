@@ -46,7 +46,7 @@
             </div>
             <div class="w-[20%] bg-transparent border-black border-4 sketch p-4 flex flex-col">
                 <div class="w-full h-[20%] flex align-center justify-center font-cabin text-3xl">Leader Board</div>
-                <div class="w-full h-[80%] flex flex-col">
+                <div class="w-full h-[80%] flex flex-col" id="leaderboard">
                     <div class="w-full flex flex-row">
                         <div class="w-[70%] p-4"></div>
                         <div class="w-[30%] p-4"></div>
@@ -69,6 +69,31 @@
     <script src="/static/monaco/loader.min.js"></script>
 
     <script>
+        function getLeaderBoard() {
+            fetch('/api/answer/leaderboard/?page_size=50', {
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": session
+                },
+                method: "GET"
+            })
+            .then(res => {
+                return res.json()
+            })
+            .then(res => {
+                let str = ""
+                for (let user of res["results"]) {
+                    str += `
+                    <div class="w-full flex flex-row">
+                        <div class="w-[70%] p-4"></div>
+                        <div class="w-[30%] p-4"></div>
+                    </div>`
+                }
+                document.getElementById("leaderboard").innerHTML = str
+                //show animation
+            })
+        }
+
         let session = window.localStorage.getItem("session")
         if (session) {
             fetch("/api/user/info/", {
@@ -85,7 +110,7 @@
                 return res.json()
             })
             .then(res => {
-                
+                setInterval(getLeaderBoard, 5000)
             })
             .catch(e => {
                 window.location = "/login"
@@ -137,7 +162,6 @@
                 window.localStorage.setItem("answer", res["results"][0][["answer"]])
                 window.localStorage.setItem("content", res["results"][0][["content"]])
                 window.localStorage.setItem("image", res["results"][0][["image"]])
-                window.localStorage.setItem("is_answer", res["results"][0][["is_answer"]])
                 //show animation
             })
         }
@@ -150,7 +174,7 @@
                 let length = longestCommonSubstring.length
                 let id = parseInt(window.localStorage.getItem("question_id"))
                 let point = Math.floor((20*length)/(string1.length + string2.length))
-                fetch("/api/user/add-point", {
+                fetch("/api/answer/add-point/", {
                     headers: {
                         "Content-Type": "application/json",
                         "Authorization": session
